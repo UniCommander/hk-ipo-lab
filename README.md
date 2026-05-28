@@ -1,6 +1,6 @@
 # hk-ipo-lab
 analyst of hk-ipo-market, belongs to Uni
-# IPO 作战参谋部 (HK-IPO-Lab)
+# HK-IPO-Lab
 
 > 私人研究系统。目标：一个人就是一支队伍。
 

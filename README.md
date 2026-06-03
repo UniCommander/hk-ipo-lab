@@ -29,22 +29,22 @@ analyst of hk-ipo-market, belongs to Uni
 4.  **存档与展示**：笔记存入 `research_notes/`，项目摘要更新进 `data/projects.json`，仪表盘自动同步。
 
 ## 仓库结构
-hk-ipo-lab/
-├── index.html # 仪表盘主页 (筛选/排序/对比)
-├── css/ # 仪表盘样式
-├── js/ # 仪表盘交互逻辑
-├── data/
-│ └── projects.json # 项目数据库 (手动维护)
-├── framework/ # 研究框架 (你的核心IP)
-│ ├── 01_宏观评分卡.md
-│ └── 02_研究总框架_v2.md
-├── prompts/ # AI 指令库 (你的专属弹药)
-│ ├── prompt_macro_update.txt
-│ ├── prompt_sector_scan.txt
-│ ├── prompt_ipo_deepdive.txt
-│ └── prompt_pre_ipo_scan.txt
-├── research_notes/ # 最终成品笔记 (AI信息+你的判断)
-└── raw_ai_outputs/ # Gemini 原始输出 (留底备查)
+* hk-ipo-lab/
+* ├── index.html # 仪表盘主页 (筛选/排序/对比)
+* ├── css/ # 仪表盘样式
+* ├── js/ # 仪表盘交互逻辑
+* ├── data/
+* │ └── projects.json # 项目数据库 (手动维护)
+* ├── framework/ # 研究框架 (你的核心IP)
+* │ ├── 01_宏观评分卡.md
+* │ └── 02_研究总框架_v2.md
+* ├── prompts/ # AI 指令库 (你的专属弹药)
+* │ ├── prompt_macro_update.txt
+* │ ├── prompt_sector_scan.txt
+* │ ├── prompt_ipo_deepdive.txt
+* │ └── prompt_pre_ipo_scan.txt
+* ├── research_notes/ # 最终成品笔记 (AI信息+你的判断)
+* └── raw_ai_outputs/ # Gemini 原始输出 (留底备查)
 
 ## 核心纪律
 *   **只做研究员，不做决策者。**
@@ -85,22 +85,22 @@ A single framework adaptable to all stages. Depth scales with available informat
 4.  **Archive & Display**: Save the final note in `research_notes/`, update the project summary in `data/projects.json`. The dashboard refreshes automatically.
 
 ## Repo Structure
-hk-ipo-lab/
-├── index.html # Dashboard (Filter/Sort/Compare)
-├── css/ # Styles
-├── js/ # Interaction logic
-├── data/
-│ └── projects.json # Project database (manual)
-├── framework/ # Research frameworks (Core IP)
-│ ├── 01_Macro_Scorecard.md
-│ └── 02_Research_Framework_v2.md
-├── prompts/ # AI prompt library
-│ ├── prompt_macro_update.txt
-│ ├── prompt_sector_scan.txt
-│ ├── prompt_ipo_deepdive.txt
-│ └── prompt_pre_ipo_scan.txt
-├── research_notes/ # Final notes (AI data + your judgment)
-└── raw_ai_outputs/ # Raw Gemini outputs (archive)
+* hk-ipo-lab/
+* ├── index.html # Dashboard (Filter/Sort/Compare)
+* ├── css/ # Styles
+* ├── js/ # Interaction logic
+* ├── data/
+* │ └── projects.json # Project database (manual)
+* ├── framework/ # Research frameworks (Core IP)
+* │ ├── 01_Macro_Scorecard.md
+* │ └── 02_Research_Framework_v2.md
+* ├── prompts/ # AI prompt library
+* │ ├── prompt_macro_update.txt
+* │ ├── prompt_sector_scan.txt
+* │ ├── prompt_ipo_deepdive.txt
+* │ └── prompt_pre_ipo_scan.txt
+* ├── research_notes/ # Final notes (AI data + your judgment)
+* └── raw_ai_outputs/ # Raw Gemini outputs (archive)
 
 ## Core Principles
 *   **Be a researcher, not a decision-maker.**

@@ -57,7 +57,7 @@ analyst of hk-ipo-market, belongs to Uni
 *   **数据格式**：Markdown (笔记) + JSON (数据库)
 
 ##English version
-# IPO War Room (HK-IPO-Lab)
+# IPO Ranking System (HK-IPO-Lab)
 > A private macro-strategy research system. Objective: One person, one army.
 
 ## What It Does

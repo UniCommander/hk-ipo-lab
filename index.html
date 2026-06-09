@@ -1,100 +1,858 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPO作战参谋部 | HK-IPO-Lab</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UNI · HK-IPO-LAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,textarea{font-family:inherit;font-size:inherit}
+
+/* ─── Tokens ─── */
+:root{
+  --sw:144px;    /* sidebar width */
+  --bh:86px;     /* bottom bar height */
+}
+[data-theme="dark"]{
+  --c-bg:3,5,16;
+  --c-s1:8,12,32;
+  --c-s2:13,19,48;
+  --c-s3:18,26,64;
+  --t1:#dde4ff;
+  --t2:#6070a8;
+  --t3:rgba(70,100,200,0.16);
+  --ac:#4d7fff;
+  --ac2:#8b5cf6;
+  --gr:#2ecc82;
+  --am:#f0aa44;
+  --re:#f05050;
+  --glass:rgba(6,9,26,0.78);
+  --gborder:rgba(60,100,220,0.14);
+  --fog-rgb:3,5,16;
+}
+[data-theme="light"]{
+  --c-bg:238,243,255;
+  --c-s1:248,250,255;
+  --c-s2:232,238,252;
+  --c-s3:218,228,248;
+  --t1:#0c1540;
+  --t2:#4a5a8a;
+  --t3:rgba(50,80,180,0.14);
+  --ac:#2a5fd4;
+  --ac2:#6030c0;
+  --gr:#1aaa62;
+  --am:#c07a18;
+  --re:#c02828;
+  --glass:rgba(240,244,255,0.82);
+  --gborder:rgba(50,80,200,0.18);
+  --fog-rgb:238,243,255;
+}
+
+/* ─── App Shell ─── */
+body{background:rgb(var(--c-bg));transition:background .4s}
+#tc{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ─── Sidebar ─── */
+#sb{
+  position:fixed;left:0;top:0;bottom:0;width:var(--sw);z-index:40;
+  background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-right:0.5px solid var(--gborder);
+  display:flex;flex-direction:column;
+}
+.sb-brand{padding:20px 16px 15px;border-bottom:0.5px solid var(--gborder)}
+.sb-logo-top{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;color:var(--t1)}
+.sb-logo-mid{font-family:'DM Mono',monospace;font-size:7.5px;font-weight:400;letter-spacing:.18em;color:var(--t2);text-transform:uppercase;margin-top:3px;opacity:.7}
+.sb-logo-sub{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.14em;color:var(--t2);opacity:.38;margin-top:2px}
+
+.sb-nav{flex:1;padding:10px 0;display:flex;flex-direction:column;gap:1px}
+.sni{
+  display:flex;align-items:center;gap:9px;padding:9px 16px;
+  font-family:'DM Mono',monospace;font-size:8px;font-weight:400;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--t2);border-left:2px solid transparent;cursor:pointer;transition:all .18s;
+}
+.sni svg{width:12px;height:12px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.sni:hover{color:var(--t1);background:rgba(var(--c-s1),.5)}
+.sni.on{color:var(--ac);border-left-color:var(--ac);background:rgba(var(--c-s2),.4)}
+
+.sb-foot{padding:14px 16px;border-top:0.5px solid var(--gborder);display:flex;align-items:center;justify-content:space-between}
+.tt{width:32px;height:17px;border-radius:9px;background:rgba(var(--c-s3),0.8);border:0.5px solid var(--gborder);cursor:pointer;position:relative;transition:background .3s}
+.tt.on{background:var(--ac)}
+.tt::after{content:'';position:absolute;width:11px;height:11px;border-radius:50%;background:var(--t1);top:2px;left:2px;transition:transform .3s}
+.tt.on::after{transform:translateX(15px)}
+.sb-ver{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);opacity:.35}
+
+/* ─── Main ─── */
+#mc{position:fixed;left:var(--sw);top:0;right:0;bottom:var(--bh);z-index:10;overflow:hidden}
+.page{position:absolute;inset:0;display:none;opacity:0;transition:opacity .3s}
+.page.on{display:block;opacity:1}
+
+/* ─── Bottom Bar ─── */
+#bb{
+  position:fixed;bottom:0;left:var(--sw);right:0;height:var(--bh);z-index:40;
+  background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-top:0.5px solid var(--gborder);
+  display:grid;grid-template-columns:164px 1fr 1fr 1fr 1fr;
+}
+.bb-time{
+  padding:0 20px;display:flex;flex-direction:column;justify-content:center;
+  border-right:0.5px solid var(--gborder);
+}
+.bb-clk{font-family:'DM Mono',monospace;font-size:21px;font-weight:300;color:var(--t1);letter-spacing:-.01em;line-height:1}
+.bb-dt{font-family:'DM Mono',monospace;font-size:8px;color:var(--t2);opacity:.55;letter-spacing:.12em;margin-top:4px}
+.bb-m{padding:10px 20px;border-right:0.5px solid var(--gborder);display:flex;flex-direction:column;justify-content:space-between}
+.bb-m:last-child{border-right:none}
+.bb-ml{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--t2);opacity:.6}
+.bb-mv{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;color:var(--t1);line-height:1;margin-top:2px}
+.bb-ms{font-family:'DM Mono',monospace;font-size:8px;color:var(--t2);opacity:.45;margin-top:1px}
+.bb-spark{margin-top:4px;flex-shrink:0}
+
+/* ─── Glass Card ─── */
+.gc{
+  background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:0.5px solid var(--gborder);border-radius:8px;overflow:hidden;
+}
+.ct{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--t2);opacity:.6;margin-bottom:14px}
+
+/* ─── Overview Page ─── */
+#pg-ov{overflow:hidden}
+.ov-tabs{
+  position:absolute;top:22px;right:22px;display:flex;z-index:20;
+}
+.ov-tab{
+  font-family:'DM Mono',monospace;font-size:8px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 13px;color:var(--t2);cursor:pointer;transition:all .18s;
+  border:0.5px solid var(--gborder);background:var(--glass);backdrop-filter:blur(12px);
+}
+.ov-tab:first-child{border-radius:4px 0 0 4px}
+.ov-tab:last-child{border-radius:0 4px 4px 0}
+.ov-tab+.ov-tab{border-left:none}
+.ov-tab.on{color:var(--ac);border-color:rgba(77,127,255,.35);background:rgba(var(--c-s2),.65)}
+
+.ov-hero{
+  position:absolute;top:0;left:0;right:348px;bottom:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 48px;pointer-events:none;
+}
+.ov-eyebrow{
+  font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ac);opacity:.75;margin-bottom:12px;
+}
+.ov-h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(62px,7.5vw,98px);font-weight:700;
+  letter-spacing:-.015em;line-height:.90;
+  color:var(--t1);text-transform:uppercase;
+}
+[data-theme="dark"] .ov-h1{
+  text-shadow:0 0 80px rgba(60,100,255,.18),0 2px 40px rgba(0,0,0,.6);
+}
+.ov-sub{
+  font-family:'DM Mono',monospace;font-size:11px;color:var(--t2);
+  letter-spacing:.10em;margin-top:16px;display:flex;align-items:center;gap:7px;
+}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--gr);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.ov-sub strong{color:var(--t1);font-weight:500}
+
+.ov-panel{
+  position:absolute;top:18px;right:18px;bottom:18px;width:322px;
+  display:flex;flex-direction:column;
+}
+.ov-ph{
+  padding:14px 18px 12px;border-bottom:0.5px solid var(--gborder);
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+}
+.ov-pt{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--t2);opacity:.6}
+.ov-pc{font-family:'DM Mono',monospace;font-size:8px;color:var(--ac);opacity:.75}
+.ov-list{flex:1;overflow-y:auto;padding:4px 0}
+.ov-list::-webkit-scrollbar{width:2px}
+.ov-list::-webkit-scrollbar-thumb{background:var(--t3)}
+.ov-row{
+  display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;
+  padding:11px 18px;border-bottom:0.5px solid var(--gborder);cursor:pointer;transition:background .12s;
+}
+.ov-row:last-child{border-bottom:none}
+.ov-row:hover{background:rgba(var(--c-s1),.55)}
+.ov-rn{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--t1);line-height:1}
+.ov-ren{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);opacity:.45;margin-top:2px}
+.stag{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.10em;text-transform:uppercase;padding:2px 7px;border-radius:2px;border:0.5px solid}
+.stag.s1{color:var(--am);border-color:rgba(240,170,68,.28)}
+.stag.s2{color:var(--ac);border-color:rgba(77,127,255,.28)}
+.stag.s3{color:var(--gr);border-color:rgba(46,204,130,.28)}
+.ov-sc{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--t1);text-align:right;line-height:1}
+.ov-scd{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);opacity:.4;text-align:right;margin-top:2px}
+.ov-pf{padding:11px 18px;border-top:0.5px solid var(--gborder);flex-shrink:0}
+.ov-va{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);cursor:pointer;opacity:.75;transition:opacity .2s}
+.ov-va:hover{opacity:1}
+
+/* ─── Macro Page ─── */
+#pg-mac{overflow-y:auto}
+.mac-wrap{padding:22px 22px 0;height:100%;display:flex;flex-direction:column;gap:14px}
+.mac-top{display:grid;grid-template-columns:272px 1fr 1fr 1fr;gap:12px;min-height:0}
+.win-sc{font-family:'Barlow Condensed',sans-serif;font-size:54px;font-weight:700;color:var(--ac);line-height:1}
+.win-d{font-size:26px;color:var(--t2);font-weight:300}
+.win-g{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.10em;
+  padding:3px 10px;border-radius:3px;border:0.5px solid;display:inline-block;margin-top:8px;
+}
+.g-cau{color:var(--am);background:rgba(240,170,68,.10);border-color:rgba(240,170,68,.22)}
+.g-act{color:var(--gr);background:rgba(46,204,130,.10);border-color:rgba(46,204,130,.22)}
+.g-wat{color:var(--t2);background:rgba(var(--c-s2),.5);border-color:var(--gborder)}
+.sbars{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.sbar-r{display:flex;align-items:center;gap:7px}
+.sbl{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.06em;color:var(--t2);width:78px;flex-shrink:0;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbt{flex:1;height:1.5px;background:var(--t3);border-radius:1px;overflow:hidden}
+.sbf{height:100%;background:var(--ac);border-radius:1px;transition:width .9s ease}
+.sbv{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);width:24px;text-align:right;flex-shrink:0;opacity:.55}
+.ms-row{padding:9px 0;border-bottom:0.5px solid var(--gborder)}
+.ms-row:last-child{border-bottom:none}
+.ms-l{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);opacity:.55;margin-bottom:3px}
+.ms-v{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;color:var(--t1);line-height:1}
+.ms-s{font-family:'DM Mono',monospace;font-size:8px;color:var(--t2);opacity:.45;margin-top:2px}
+.ms-v.up{color:var(--gr)}.ms-v.dn{color:var(--re)}.ms-v.wa{color:var(--am)}
+.mac-ta{
+  width:100%;background:transparent;border:0.5px solid var(--gborder);border-radius:4px;
+  padding:9px 10px;color:var(--t1);resize:none;outline:none;transition:border-color .2s;
+  font-size:10px;line-height:1.65;
+}
+.mac-ta:focus{border-color:var(--ac)}
+.mac-in{padding:4px 0 0}
+.mi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px}
+.mi-l{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);opacity:.6;margin-bottom:5px}
+.mi-i{
+  width:100%;background:rgba(var(--c-s2),.6);border:0.5px solid var(--gborder);border-radius:4px;
+  padding:8px 10px;color:var(--t1);outline:none;transition:border-color .2s;font-size:11px;
+}
+.mi-i:focus{border-color:var(--ac)}
+.btn-save{
+  font-family:'DM Mono',monospace;font-size:8.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  padding:8px 20px;border-radius:3px;background:var(--ac);color:#fff;margin-top:10px;transition:opacity .2s;
+}
+.btn-save:hover{opacity:.82}
+
+/* ─── Pipeline Page ─── */
+#pg-pip{overflow-y:auto}
+.pip-wrap{padding:22px 22px;height:100%}
+.flt-row{display:flex;gap:5px;margin-bottom:18px;flex-wrap:wrap}
+.fc{
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.13em;text-transform:uppercase;
+  padding:5px 12px;border-radius:3px;border:0.5px solid var(--gborder);background:var(--glass);
+  backdrop-filter:blur(10px);color:var(--t2);cursor:pointer;transition:all .18s;
+}
+.fc.on{color:var(--ac);border-color:rgba(77,127,255,.32);background:rgba(var(--c-s2),.7)}
+.pip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.pc{
+  background:var(--glass);backdrop-filter:blur(20px);border:0.5px solid var(--gborder);
+  border-radius:8px;padding:17px;cursor:pointer;transition:border-color .2s,transform .18s;
+}
+.pc:hover{border-color:rgba(77,127,255,.38);transform:translateY(-2px)}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px}
+.pc-n{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--t1)}
+.pc-e{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);opacity:.42;margin-top:2px}
+.pc-sc{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;color:var(--ac);text-align:right;line-height:1}
+.pc-sd{font-family:'DM Mono',monospace;font-size:7.5px;color:var(--t2);opacity:.35;text-align:right}
+.pc-tags{display:flex;gap:4px;margin-bottom:11px;flex-wrap:wrap}
+.pt{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.10em;text-transform:uppercase;padding:2px 7px;border-radius:2px;border:0.5px solid}
+.pc-bars{display:flex;flex-direction:column;gap:4px}
+.pc-note{margin-top:9px;font-family:'DM Mono',monospace;font-size:8px;color:var(--am);opacity:.8;padding:5px 8px;background:rgba(240,170,68,.08);border-radius:3px;border:0.5px solid rgba(240,170,68,.18)}
+
+/* ─── Analyze Page ─── */
+#pg-an{overflow-y:auto}
+.an-wrap{padding:22px;display:grid;grid-template-columns:1fr 1.1fr;gap:14px;min-height:100%;align-items:start}
+.an-lbl{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--t2);opacity:.6;margin-bottom:5px}
+.an-inp{
+  width:100%;background:rgba(var(--c-s2),.55);border:0.5px solid var(--gborder);border-radius:4px;
+  padding:9px 11px;color:var(--t1);outline:none;transition:border-color .2s;font-size:11px;display:block;
+}
+.an-inp:focus{border-color:var(--ac)}
+.an-sta-r{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+.an-sb{
+  padding:8px 0;border-radius:4px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  border:0.5px solid var(--gborder);color:var(--t2);cursor:pointer;transition:all .18s;
+}
+.an-sb.on{border-color:var(--ac);color:var(--ac);background:rgba(var(--c-s2),.7)}
+.an-ta{
+  width:100%;background:rgba(var(--c-s2),.55);border:0.5px solid var(--gborder);border-radius:4px;
+  padding:9px 11px;color:var(--t1);outline:none;resize:vertical;transition:border-color .2s;line-height:1.65;font-size:10px;
+}
+.an-ta:focus{border-color:var(--ac)}
+.an-run{
+  width:100%;padding:11px 0;border-radius:4px;background:var(--ac);color:#fff;
+  font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  margin-top:12px;transition:opacity .18s,transform .1s;
+}
+.an-run:hover{opacity:.84}
+.an-run:active{transform:scale(.98)}
+.an-run:disabled{opacity:.38;cursor:not-allowed}
+.an-st{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--t2);margin-top:7px;min-height:14px;opacity:.7}
+.an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;gap:9px;opacity:.28}
+.an-empty svg{width:34px;height:34px;stroke:var(--t2);fill:none;stroke-width:1.2}
+.an-empty p{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--t2)}
+.lc{background:rgba(var(--c-s2),.5);border:0.5px solid var(--gborder);border-radius:6px;padding:13px;margin-bottom:9px}
+.lc-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.lc-n{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);opacity:.65}
+.lc-s{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;color:var(--ac)}
+.lc-m{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--t2);opacity:.38}
+.lc-bar{height:1.5px;background:var(--t3);border-radius:1px;overflow:hidden;margin-bottom:9px}
+.lc-bf{height:100%;border-radius:1px;background:var(--ac);transition:width .7s ease}
+.lc-r{font-family:'DM Mono',monospace;font-size:9px;line-height:1.72;color:var(--t2);opacity:.85}
+.hyp-t{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--t2);opacity:.55;margin:14px 0 7px}
+.hyp-i{display:flex;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--gborder);font-family:'DM Mono',monospace;font-size:9px;line-height:1.7;color:var(--t1);opacity:.85}
+.hyp-i:last-child{border-bottom:none}
+.hyp-n{color:var(--ac);font-weight:500;flex-shrink:0}
+.ecm-box{background:rgba(var(--c-s3),.45);border:0.5px solid var(--gborder);border-left:2px solid var(--ac2);border-radius:4px;padding:11px;margin-top:11px}
+.ecm-l{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ac2);margin-bottom:5px;opacity:.85}
+.ecm-t{font-family:'DM Mono',monospace;font-size:9.5px;line-height:1.72;color:var(--t1);opacity:.82}
+
+/* ─── Settings Page ─── */
+#pg-set{overflow-y:auto}
+.set-wrap{padding:26px;height:100%}
+.set-sec{max-width:500px;margin-bottom:16px}
+.set-ti{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:.05em;color:var(--t1);margin-bottom:15px}
+.set-r{margin-bottom:13px}
+.set-l{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--t2);opacity:.6;margin-bottom:5px}
+.set-i{
+  width:100%;background:rgba(var(--c-s2),.6);border:0.5px solid var(--gborder);border-radius:4px;
+  padding:9px 12px;color:var(--t1);outline:none;transition:border-color .2s;font-size:11px;
+}
+.set-i:focus{border-color:var(--ac)}
+.set-n{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--t2);opacity:.45;margin-top:9px;line-height:1.7}
+
+/* ─── Scrollbar ─── */
+*::-webkit-scrollbar{width:3px;height:3px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--t3);border-radius:2px}
+
+/* ─── Utils ─── */
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+.gap8{display:flex;align-items:center;gap:8px}
+</style>
 </head>
 <body>
-    <header>
-        <h1>IPO 作战参谋部</h1>
-        <nav id="tabs">
-            <button class="tab active" data-tab="dashboard">宏观仪表盘</button>
-            <button class="tab" data-tab="projects">项目笔记</button>
-            <button class="tab" data-tab="sectors">赛道图谱</button>
-        </nav>
-    </header>
 
-    <main>
-        <!-- 宏观仪表盘 -->
-        <section id="tab-dashboard" class="tab-content active">
-            <div class="macro-grid">
-                <div class="macro-card">
-                    <h3>美联储降息概率</h3>
-                    <div class="value" id="fed-prob">--</div>
-                    <div class="trend" id="fed-trend">--</div>
-                </div>
-                <div class="macro-card">
-                    <h3>10Y美债收益率</h3>
-                    <div class="value" id="us10y">--</div>
-                    <div class="trend" id="us10y-trend">--</div>
-                </div>
-                <div class="macro-card">
-                    <h3>USD/HKD</h3>
-                    <div class="value" id="usdhkd">--</div>
-                    <div class="trend" id="usdhkd-trend">--</div>
-                </div>
-                <div class="macro-card">
-                    <h3>恒生科技PE</h3>
-                    <div class="value" id="hstech-pe">--</div>
-                    <div class="trend" id="hstech-trend">--</div>
-                </div>
-                <div class="macro-card">
-                    <h3>港股IPO月融资额</h3>
-                    <div class="value" id="ipo-volume">--</div>
-                    <div class="trend" id="ipo-trend">--</div>
-                </div>
-                <div class="macro-card">
-                    <h3>中美摩擦信号</h3>
-                    <div class="value" id="uscn-tension">--</div>
-                    <div class="trend" id="uscn-trend">--</div>
-                </div>
-            </div>
-            <div class="macro-summary">
-                <h3>综合评分</h3>
-                <div class="score" id="macro-score">--/10</div>
-                <div id="macro-positive"></div>
-                <div id="macro-negative"></div>
-                <div id="macro-guidance"></div>
-            </div>
-        </section>
+<!-- TERRAIN -->
+<canvas id="tc"></canvas>
 
-        <!-- 项目笔记 -->
-        <section id="tab-projects" class="tab-content">
-            <div class="toolbar">
-                <select id="filter-sector">
-                    <option value="all">全部赛道</option>
-                </select>
-                <select id="filter-rating">
-                    <option value="all">全部评级</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                </select>
-                <select id="sort-by">
-                    <option value="date">按日期</option>
-                    <option value="rating">按评级</option>
-                    <option value="name">按名称</option>
-                </select>
-                <input type="text" id="search-box" placeholder="搜索公司名...">
-                <button id="btn-compare" disabled>对比选中 (最多3个)</button>
-                <button id="btn-export">导出报告</button>
-            </div>
-            <div id="project-list"></div>
-            <div id="compare-panel" style="display:none;">
-                <h3>对比视图</h3>
-                <div id="compare-table"></div>
-                <button id="btn-close-compare">关闭对比</button>
-            </div>
-        </section>
+<!-- SIDEBAR -->
+<aside id="sb">
+  <div class="sb-brand">
+    <div class="sb-logo-top">UNI · HK-IPO-LAB</div>
+    <div class="sb-logo-mid">Macro Research Terminal</div>
+    <div class="sb-logo-sub">Shanghai · v1.0</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sni on" data-pg="ov">
+      <svg viewBox="0 0 14 14"><rect x="1" y="1" width="5" height="5" rx=".8"/><rect x="8" y="1" width="5" height="5" rx=".8"/><rect x="1" y="8" width="5" height="5" rx=".8"/><rect x="8" y="8" width="5" height="5" rx=".8"/></svg>Overview
+    </div>
+    <div class="sni" data-pg="mac">
+      <svg viewBox="0 0 14 14"><polyline points="1,11 4,7 7,9 10,4 13,6"/><line x1="1" y1="13" x2="13" y2="13"/></svg>Macro
+    </div>
+    <div class="sni" data-pg="pip">
+      <svg viewBox="0 0 14 14"><polygon points="7,1 13,4.5 7,8 1,4.5"/><polyline points="1,8 7,11.5 13,8"/></svg>Pipeline
+    </div>
+    <div class="sni" data-pg="an">
+      <svg viewBox="0 0 14 14"><rect x="3.5" y="3.5" width="7" height="7" rx=".8"/><line x1="5.5" y1="1" x2="5.5" y2="3.5"/><line x1="8.5" y1="1" x2="8.5" y2="3.5"/><line x1="5.5" y1="10.5" x2="5.5" y2="13"/><line x1="8.5" y1="10.5" x2="8.5" y2="13"/><line x1="1" y1="5.5" x2="3.5" y2="5.5"/><line x1="1" y1="8.5" x2="3.5" y2="8.5"/><line x1="10.5" y1="5.5" x2="13" y2="5.5"/><line x1="10.5" y1="8.5" x2="13" y2="8.5"/></svg>Analyze
+    </div>
+    <div class="sni" data-pg="set">
+      <svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="2.2"/><path d="M7 1v1.3M7 11.7V13M1 7h1.3M11.7 7H13M2.64 2.64l.92.92M10.44 10.44l.92.92M2.64 11.36l.92-.92M10.44 3.56l.92-.92"/></svg>Settings
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div id="tt" class="tt on"></div>
+    <div class="sb-ver">v1.0.0</div>
+  </div>
+</aside>
 
-        <!-- 赛道图谱 -->
-        <section id="tab-sectors" class="tab-content">
-            <div id="sector-map"></div>
-        </section>
-    </main>
+<!-- MAIN -->
+<main id="mc">
 
-    <script src="js/app.js"></script>
+  <!-- ── OVERVIEW ── -->
+  <section id="pg-ov" class="page on">
+    <div class="ov-tabs">
+      <button class="ov-tab on" data-sf="all">All</button>
+      <button class="ov-tab" data-sf="s1">S1 Pre-Filing</button>
+      <button class="ov-tab" data-sf="s2">S2 Filed</button>
+      <button class="ov-tab" data-sf="s3">S3 Roadshow</button>
+    </div>
+    <div class="ov-hero">
+      <div class="ov-eyebrow">HK Equity Capital Markets</div>
+      <div class="ov-h1">Pipeline<br>Overview</div>
+      <div class="ov-sub">
+        <span class="live-dot"></span>
+        <strong id="ov-cnt">7</strong>&nbsp;Projects in Pipeline
+      </div>
+    </div>
+    <div class="ov-panel gc">
+      <div class="ov-ph">
+        <span class="ov-pt">Active Projects</span>
+        <span class="ov-pc" id="ov-pc2">7 / 7</span>
+      </div>
+      <div class="ov-list" id="ov-list"></div>
+      <div class="ov-pf">
+        <div class="ov-va" onclick="go('pip')">View All Projects →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MACRO ── -->
+  <section id="pg-mac" class="page">
+    <div class="mac-wrap">
+      <div class="mac-top">
+        <div class="gc" style="padding:18px">
+          <div class="ct">IPO Window Score</div>
+          <div class="win-sc" id="mac-sc">8.5<span class="win-d">/12</span></div>
+          <div class="win-g g-cau" id="mac-g">谨慎</div>
+          <div class="sbars" id="mac-sbars"></div>
+        </div>
+        <div class="gc" style="padding:18px">
+          <div class="ct">🇺🇸 US Markets</div>
+          <div class="ms-row"><div class="ms-l">10Y UST Yield</div><div class="ms-v wa" id="m-ust">4.28%</div><div class="ms-s">FRED</div></div>
+          <div class="ms-row"><div class="ms-l">Fed Rate</div><div class="ms-v" id="m-fed">4.25–4.50%</div><div class="ms-s">Current Policy</div></div>
+          <div class="ms-row"><div class="ms-l">CN-US Friction</div><div class="ms-v wa" id="m-fric">3 / 5</div><div class="ms-s">Moderate</div></div>
+        </div>
+        <div class="gc" style="padding:18px">
+          <div class="ct">🇭🇰 HK Markets</div>
+          <div class="ms-row"><div class="ms-l">USD/HKD</div><div class="ms-v up" id="m-hkd">—</div><div class="ms-s" id="m-hkd-s">Loading…</div></div>
+          <div class="ms-row"><div class="ms-l">HSTECH PE</div><div class="ms-v" id="m-hst">—</div><div class="ms-s">Manual · Choice</div></div>
+          <div class="ms-row"><div class="ms-l">IPO Volume MTD</div><div class="ms-v" id="m-ipov">—</div><div class="ms-s">HKEx</div></div>
+        </div>
+        <div class="gc" style="padding:18px;display:flex;flex-direction:column">
+          <div class="ct">🌐 Cross-Market</div>
+          <div class="ms-row"><div class="ms-l">DXY</div><div class="ms-v" id="m-dxy">104.2</div><div class="ms-s">Manual</div></div>
+          <div class="ms-l mt8">Macro View</div>
+          <textarea class="mac-ta mt4" id="m-view" rows="4" placeholder="Your macro narrative…" style="flex:1;min-height:70px">Fed hold likely through Q2. HK window cautious—watching HKMA liquidity signals. Prefer S1 entries with strong sponsor alignment.</textarea>
+        </div>
+      </div>
+      <div class="gc" style="padding:18px">
+        <div class="ct">Manual Data Inputs</div>
+        <div class="mi-grid">
+          <div><div class="mi-l">HSTECH PE</div><input class="mi-i" id="i-hst" placeholder="e.g. 28.5x"></div>
+          <div><div class="mi-l">IPO Vol MTD</div><input class="mi-i" id="i-ipov" placeholder="e.g. HK$12B"></div>
+          <div><div class="mi-l">CN-US Friction (1–5)</div><input class="mi-i" id="i-fric" type="number" min="1" max="5" placeholder="1–5"></div>
+          <div><div class="mi-l">DXY</div><input class="mi-i" id="i-dxy" placeholder="e.g. 104.2"></div>
+          <div><div class="mi-l">Fed Rate</div><input class="mi-i" id="i-fed" placeholder="4.25–4.50%"></div>
+        </div>
+        <button class="btn-save mt8" onclick="saveMacro()">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PIPELINE ── -->
+  <section id="pg-pip" class="page">
+    <div class="pip-wrap">
+      <div class="flt-row" id="flt-row">
+        <button class="fc on" data-fl="all">All</button>
+        <button class="fc" data-fl="s1">S1 Pre-Filing</button>
+        <button class="fc" data-fl="s2">S2 Filed</button>
+        <button class="fc" data-fl="s3">S3 Roadshow</button>
+        <button class="fc" data-fl="prio">Priority</button>
+      </div>
+      <div class="pip-grid" id="pip-grid"></div>
+    </div>
+  </section>
+
+  <!-- ── ANALYZE ── -->
+  <section id="pg-an" class="page">
+    <div class="an-wrap">
+      <div class="gc" style="padding:20px">
+        <div class="ct">AI Research Assistant</div>
+        <div class="an-lbl mt4">Company Name</div>
+        <input class="an-inp mt4" id="an-co" placeholder="梅卡曼德 / Mech-Mind" style="margin-bottom:12px">
+        <div class="an-lbl">Research Stage</div>
+        <div class="an-sta-r mt4">
+          <button class="an-sb on" data-st="S1">S1 早期</button>
+          <button class="an-sb" data-st="S2">S2 文件期</button>
+          <button class="an-sb" data-st="S3">S3 招股期</button>
+        </div>
+        <div class="an-lbl">Background Info</div>
+        <textarea class="an-ta mt4" id="an-inf" rows="7" placeholder="Paste company info, filing excerpts, news…"></textarea>
+        <div class="an-lbl mt12">Macro Context (optional)</div>
+        <textarea class="an-ta mt4" id="an-mac" rows="2" placeholder="Current window score, key macro signals…"></textarea>
+        <button class="an-run mt12" id="an-run" onclick="runAI()">▸ Run Analysis</button>
+        <div id="an-st" class="an-st"></div>
+      </div>
+      <div class="gc" style="padding:20px">
+        <div class="ct">Analysis Output</div>
+        <div id="an-out">
+          <div class="an-empty">
+            <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16"/><line x1="18" y1="10" x2="18" y2="18"/><circle cx="18" cy="24" r="1" fill="currentColor"/></svg>
+            <p>Run analysis to see results</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SETTINGS ── -->
+  <section id="pg-set" class="page">
+    <div class="set-wrap">
+      <div class="gc set-sec" style="padding:20px">
+        <div class="set-ti">API Configuration</div>
+        <div class="set-r"><div class="set-l">Gemini API Key</div><input class="set-i" id="s-gem" type="password" placeholder="AIzaSy…"></div>
+        <div class="set-r"><div class="set-l">FRED API Key (10Y UST)</div><input class="set-i" id="s-fred" type="password" placeholder="Optional"></div>
+        <button class="btn-save" onclick="saveSet()">Save Settings</button>
+        <div class="set-n">Keys are stored in localStorage only. Never leave this window open on shared devices.</div>
+      </div>
+      <div class="gc set-sec" style="padding:20px">
+        <div class="set-ti">About</div>
+        <div class="set-n" style="opacity:.65;line-height:1.9">HK-IPO-LAB · Macro Research Terminal<br>Version 1.0.0 · UniCommander<br>Five-layer × Three-stage IPO scoring framework<br>Powered by Google Gemini 2.0 Flash</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM BAR -->
+<footer id="bb">
+  <div class="bb-time">
+    <div class="bb-clk" id="bb-clk">--:--:--</div>
+    <div class="bb-dt" id="bb-dt">----/--/-- ---</div>
+  </div>
+  <div class="bb-m">
+    <div class="bb-ml">Market Sentiment</div>
+    <div class="bb-mv" id="bm-s">68<span style="font-family:'DM Mono',monospace;font-size:11px;opacity:.42">/100</span></div>
+    <div class="bb-ms">Balanced</div>
+    <canvas class="bb-spark" id="sp0" width="100" height="20"></canvas>
+  </div>
+  <div class="bb-m">
+    <div class="bb-ml">IPO Window</div>
+    <div class="bb-mv" id="bm-w" style="color:var(--am)">Active</div>
+    <div class="bb-ms" id="bm-ws">6–8月</div>
+    <canvas class="bb-spark" id="sp1" width="100" height="20"></canvas>
+  </div>
+  <div class="bb-m">
+    <div class="bb-ml">Capital Flow</div>
+    <div class="bb-mv">+120<span style="font-family:'DM Mono',monospace;font-size:11px;opacity:.42">亿港元</span></div>
+    <div class="bb-ms">近30日</div>
+    <canvas class="bb-spark" id="sp2" width="100" height="20"></canvas>
+  </div>
+  <div class="bb-m" style="border-right:none">
+    <div class="bb-ml">Success Rate</div>
+    <div class="bb-mv" style="color:var(--gr)">75<span style="font-family:'DM Mono',monospace;font-size:11px;opacity:.42">%</span></div>
+    <div class="bb-ms">过去12月</div>
+    <canvas class="bb-spark" id="sp3" width="100" height="20"></canvas>
+  </div>
+</footer>
+
+<script>
+/* ═══ DATA ═══ */
+const PJ = [
+  {id:'mm',  name:'梅卡曼德',  en:'Mech-Mind Robotics',  st:'s1', sl:'Pre-Filing', sp:'CLSA·中信建投', sec:'工业机器人', sc:59, max:80, prio:true,  l:{l1:14,l2:16,l3:15,l4:null,l5:14}, note:'美团领投C轮 · 最热标的'},
+  {id:'bw',  name:'佰维存储',  en:'BIWIN Storage',        st:'s2', sl:'Filed',      sp:'招银国际',       sec:'存储芯片',   sc:47, max:80, prio:true,  l:{l1:12,l2:13,l3:11,l4:8, l5:3},  note:'A1已递交'},
+  {id:'gx',  name:'国星宇航',  en:'GuoXing Aerospace',   st:'s1', sl:'Pre-Filing', sp:'—',              sec:'商业卫星',   sc:51, max:80, prio:false, l:{l1:13,l2:12,l3:14,l4:null,l5:12}, note:''},
+  {id:'kl',  name:'昆仑芯',   en:'Kunlun Chip',          st:'s1', sl:'Pre-Filing', sp:'—',              sec:'AI芯片',    sc:55, max:80, prio:false, l:{l1:14,l2:15,l3:14,l4:null,l5:12}, note:'百度系'},
+  {id:'jl',  name:'基流科技',  en:'Jiliu Technology',    st:'s2', sl:'Filed',      sp:'—',              sec:'工业软件',   sc:44, max:80, prio:false, l:{l1:11,l2:11,l3:12,l4:7, l5:3},  note:''},
+  {id:'xag', name:'极飞科技',  en:'XAG',                  st:'s2', sl:'Filed',      sp:'—',              sec:'农业无人机', sc:48, max:80, prio:false, l:{l1:12,l2:13,l3:12,l4:8, l5:3},  note:''},
+  {id:'dx',  name:'德昇济医药', en:'Dexa Pharma',         st:'s1', sl:'Pre-Filing', sp:'—',              sec:'Biotech',   sc:43, max:80, prio:false, l:{l1:11,l2:10,l3:12,l4:null,l5:10}, note:''},
+];
+const LN = ['L1 Macro','L2 Sector','L3 Issuer','L4 Pricing','L5 Special'];
+const LK = ['l1','l2','l3','l4','l5'];
+const LM = [20,20,30,20,10];
+
+/* ═══ NAV ═══ */
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sni').forEach(n => n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  document.querySelector(`.sni[data-pg="${id}"]`).classList.add('on');
+}
+document.querySelectorAll('.sni').forEach(n => n.onclick = () => go(n.dataset.pg));
+
+/* ═══ THEME ═══ */
+let dark = localStorage.getItem('theme') !== 'light';
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('tt').classList.toggle('on', dark);
+}
+document.getElementById('tt').onclick = () => { dark = !dark; localStorage.setItem('theme', dark?'dark':'light'); applyTheme(); };
+applyTheme();
+
+/* ═══ CLOCK ═══ */
+function tick() {
+  const n = new Date(), p = x => String(x).padStart(2,'0');
+  document.getElementById('bb-clk').textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  document.getElementById('bb-dt').textContent = `${n.getFullYear()}/${p(n.getMonth()+1)}/${p(n.getDate())} ${days[n.getDay()]}`;
+}
+setInterval(tick, 1000); tick();
+
+/* ═══ SPARKLINES ═══ */
+function spark(id, data, col) {
+  const c = document.getElementById(id); if(!c) return;
+  const x = c.getContext('2d'), w = c.width, h = c.height;
+  x.clearRect(0,0,w,h);
+  const mn = Math.min(...data), mx = Math.max(...data), rng = mx-mn||1;
+  const pts = data.map((v,i) => [i/(data.length-1)*w, h-((v-mn)/rng)*(h-3)-1.5]);
+  x.beginPath(); x.moveTo(pts[0][0], pts[0][1]);
+  for(let i=1;i<pts.length;i++){const m=(pts[i-1][0]+pts[i][0])/2; x.bezierCurveTo(m,pts[i-1][1],m,pts[i][1],pts[i][0],pts[i][1]);}
+  x.strokeStyle=col; x.lineWidth=1.2; x.stroke();
+  x.lineTo(pts[pts.length-1][0],h); x.lineTo(pts[0][0],h); x.closePath();
+  const g=x.createLinearGradient(0,0,0,h); g.addColorStop(0,col+'50'); g.addColorStop(1,col+'00');
+  x.fillStyle=g; x.fill();
+}
+function rnd(b,v,n=22){return Array.from({length:n},(_,i)=>b+(Math.random()-.5)*v+Math.sin(i/3.5)*v*.35);}
+setTimeout(()=>{
+  spark('sp0',rnd(65,22),'#4d7fff');
+  spark('sp1',rnd(.72,.28),'#f0aa44');
+  spark('sp2',rnd(110,55),'#4d7fff');
+  spark('sp3',rnd(74,14),'#2ecc82');
+},300);
+
+/* ═══ OVERVIEW LIST ═══ */
+let stgFilter = 'all';
+function renderOvList() {
+  const fl = stgFilter==='all' ? PJ : PJ.filter(p=>p.st===stgFilter);
+  document.getElementById('ov-pc2').textContent = `${fl.length} / ${PJ.length}`;
+  document.getElementById('ov-list').innerHTML = fl.map(p=>`
+    <div class="ov-row" onclick="go('pip')">
+      <div><div class="ov-rn">${p.name}</div><div class="ov-ren">${p.en}</div></div>
+      <span class="stag ${p.st}">${p.sl}</span>
+      <div><div class="ov-sc">${p.sc}</div><div class="ov-scd">/${p.max}</div></div>
+    </div>`).join('');
+}
+document.querySelectorAll('.ov-tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.ov-tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); stgFilter = t.dataset.sf; renderOvList();
+});
+renderOvList();
+
+/* ═══ PIPELINE ═══ */
+function renderPip(fl='all') {
+  const pj = fl==='all' ? PJ : fl==='prio' ? PJ.filter(p=>p.prio) : PJ.filter(p=>p.st===fl);
+  document.getElementById('pip-grid').innerHTML = pj.map(p=>`
+    <div class="pc">
+      <div class="pc-top">
+        <div><div class="pc-n">${p.name}</div><div class="pc-e">${p.en}</div></div>
+        <div><div class="pc-sc">${p.sc}</div><div class="pc-sd">/${p.max}</div></div>
+      </div>
+      <div class="pc-tags">
+        <span class="pt stag ${p.st}">${p.sl}</span>
+        <span class="pt" style="color:var(--t2);border-color:var(--gborder)">${p.sec}</span>
+        ${p.prio?'<span class="pt" style="color:var(--gr);border-color:rgba(46,204,130,.28)">Priority</span>':''}
+      </div>
+      <div class="pc-bars">${LK.map((k,i)=>{
+        if(k==='l4'&&p.l[k]===null) return `<div class="sbar-r"><div class="sbl">${LN[i]}</div><div class="sbt" style="opacity:.2"><div class="sbf" style="width:0"></div></div><div class="sbv" style="opacity:.25">N/A</div></div>`;
+        const pct=p.l[k]?(p.l[k]/LM[i]*100):0;
+        return `<div class="sbar-r"><div class="sbl">${LN[i]}</div><div class="sbt"><div class="sbf" style="width:${pct}%"></div></div><div class="sbv">${p.l[k]||0}/${LM[i]}</div></div>`;
+      }).join('')}</div>
+      ${p.note?`<div class="pc-note">${p.note}</div>`:''}
+    </div>`).join('');
+}
+document.querySelectorAll('.fc').forEach(c => c.onclick = () => {
+  document.querySelectorAll('.fc').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); renderPip(c.dataset.fl);
+});
+renderPip();
+
+/* ═══ MACRO SCORE BARS ═══ */
+const MC = [
+  {l:'Fed Rate Exp.',sc:2,mx:3},{l:'10Y UST',sc:1.5,mx:3},{l:'USD/HKD',sc:2,mx:2},
+  {l:'HSTECH PE',sc:1,mx:2},{l:'IPO Volume',sc:1.5,mx:2},{l:'CN-US Friction',sc:.5,mx:2},
+];
+document.getElementById('mac-sbars').innerHTML = MC.map(c=>`
+  <div class="sbar-r"><div class="sbl">${c.l}</div><div class="sbt"><div class="sbf" style="width:${c.sc/c.mx*100}%"></div></div><div class="sbv">${c.sc}/${c.mx}</div></div>`).join('');
+
+/* ═══ SETTINGS ═══ */
+function saveSet() {
+  localStorage.setItem('gem_key', document.getElementById('s-gem').value.trim());
+  localStorage.setItem('fred_key', document.getElementById('s-fred').value.trim());
+  const el = document.getElementById('s-gem');
+  el.style.borderColor='var(--gr)'; setTimeout(()=>el.style.borderColor='',1600);
+}
+function saveMacro() {
+  const v = {hst:$('i-hst').value, ipov:$('i-ipov').value, fric:$('i-fric').value, dxy:$('i-dxy').value, fed:$('i-fed').value};
+  localStorage.setItem('mac', JSON.stringify(v));
+  if(v.hst) $('m-hst').textContent=v.hst;
+  if(v.ipov) $('m-ipov').textContent=v.ipov;
+  if(v.fric) $('m-fric').textContent=v.fric+'/5';
+  if(v.dxy) $('m-dxy').textContent=v.dxy;
+  if(v.fed) $('m-fed').textContent=v.fed;
+}
+function $(id){return document.getElementById(id)}
+document.getElementById('s-gem').value = localStorage.getItem('gem_key')||'';
+document.getElementById('s-fred').value = localStorage.getItem('fred_key')||'';
+const sm = JSON.parse(localStorage.getItem('mac')||'{}');
+if(sm.hst){$('i-hst').value=sm.hst;$('m-hst').textContent=sm.hst;}
+if(sm.ipov){$('i-ipov').value=sm.ipov;$('m-ipov').textContent=sm.ipov;}
+if(sm.fric){$('i-fric').value=sm.fric;$('m-fric').textContent=sm.fric+'/5';}
+if(sm.dxy){$('i-dxy').value=sm.dxy;$('m-dxy').textContent=sm.dxy;}
+if(sm.fed){$('i-fed').value=sm.fed;$('m-fed').textContent=sm.fed;}
+
+/* ═══ LIVE FX ═══ */
+fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json()).then(d=>{
+  if(d.rates&&d.rates.HKD){$('m-hkd').textContent=d.rates.HKD.toFixed(4);$('m-hkd-s').textContent='Live · er-api.com';}
+}).catch(()=>{});
+
+/* ═══ ANALYZE - GEMINI ═══ */
+let curSt='S1';
+document.querySelectorAll('.an-sb').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.an-sb').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); curSt=b.dataset.st;
+});
+async function runAI() {
+  const co=$('an-co').value.trim(), inf=$('an-inf').value.trim(), mac=$('an-mac').value.trim();
+  const key=localStorage.getItem('gem_key');
+  if(!key){$('an-st').textContent='⚠ No Gemini API key — go to Settings';return;}
+  if(!co||!inf){$('an-st').textContent='⚠ Fill company name and background info';return;}
+  const btn=$('an-run'); btn.disabled=true; btn.textContent='▸ Running…';
+  $('an-st').textContent='Calling Gemini 2.0 Flash…';
+  const prompt=`你是Uni的港股IPO宏观买方研究参谋。
+分析对象:${co} 阶段:${curSt}
+背景:${inf}
+宏观:${mac||'谨慎窗口，Fed hold，USD/HKD稳定'}
+
+返回严格JSON，不加任何其他文字或markdown:
+{"company":"","stage":"","scores":{"l1":{"score":0,"max":20,"rationale":""},"l2":{"score":0,"max":20,"rationale":"","sector_priority":"A","comp_anchor":""},"l3":{"score":0,"max":30,"rationale":""},"l4":${curSt==='S1'?'null':'{"score":0,"max":20,"valuation_range":"","rationale":""}'},"l5":{"score":0,"max":10,"rationale":""}},"summary":"","hypotheses":["","",""],"ecm_angle":""}`;
+  try {
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.4,maxOutputTokens:1800}})
+    });
+    const d=await r.json();
+    let raw=d?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    raw=raw.replace(/```json|```/g,'').trim();
+    renderAI(JSON.parse(raw));
+    $('an-st').textContent='✓ Analysis complete';
+  } catch(e) {
+    $('an-st').textContent='✗ Error: '+e.message;
+    $('an-out').innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--re);padding:14px;opacity:.8">Error: ${e.message}</div>`;
+  }
+  btn.disabled=false; btn.textContent='▸ Run Analysis';
+}
+function renderAI(r){
+  const sc=r.scores, tot=Object.values(sc).reduce((a,v)=>a+(v?v.score||0:0),0), mx=curSt==='S1'?80:100;
+  const lh=Object.entries(sc).map(([k,l],i)=>{
+    if(!l) return `<div class="lc" style="opacity:.35"><div class="lc-h"><div class="lc-n">L4 Pricing /20</div><div><span class="lc-s">N/A</span></div></div><div class="lc-r">Skip for S1</div></div>`;
+    const pct=l.score/l.max*100;
+    const ex=k==='l2'&&l.comp_anchor?`<div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--ac);margin-top:5px;opacity:.8">Comp: ${l.comp_anchor}</div>`:'';
+    const ex4=k==='l4'&&l.valuation_range?`<div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--ac);margin-top:5px;opacity:.8">Range: ${l.valuation_range}</div>`:'';
+    return `<div class="lc"><div class="lc-h"><div class="lc-n">${{l1:'L1 Macro',l2:'L2 Sector',l3:'L3 Issuer',l4:'L4 Pricing',l5:'L5 Special'}[k]} /${l.max}</div><div><span class="lc-s">${l.score}</span><span class="lc-m">/${l.max}</span></div></div><div class="lc-bar"><div class="lc-bf" style="width:${pct}%"></div></div><div class="lc-r">${l.rationale}</div>${ex}${ex4}</div>`;
+  }).join('');
+  $('an-out').innerHTML=`
+    <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:700;color:var(--ac);line-height:1">${tot}<span style="font-size:20px;color:var(--t2);font-weight:300">/${mx}</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--t1);opacity:.65">${r.company} · ${r.stage}</div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:9.5px;line-height:1.8;color:var(--t2);padding:11px;background:rgba(var(--c-s2),.55);border-radius:4px;border:0.5px solid var(--gborder);margin-bottom:13px">${r.summary}</div>
+    ${lh}
+    <div class="hyp-t">Key Hypotheses</div>
+    ${(r.hypotheses||[]).map((h,i)=>`<div class="hyp-i"><span class="hyp-n">0${i+1}</span><span>${h}</span></div>`).join('')}
+    <div class="ecm-box mt12"><div class="ecm-l">ECM Angle</div><div class="ecm-t">${r.ecm_angle}</div></div>`;
+}
+
+/* ═══════════════════════════════════════════
+   TERRAIN CANVAS
+═══════════════════════════════════════════ */
+const TC = document.getElementById('tc');
+const TX = TC.getContext('2d');
+
+const COLS=52, ROWS=34, SP=20, AMP=88, TILT=0.36, FOV=500;
+let phase=0, rotY=-0.18;
+
+function resize(){TC.width=window.innerWidth;TC.height=window.innerHeight;}
+window.addEventListener('resize',resize); resize();
+
+function getH(c,r){
+  const nx=c/COLS, nz=r/ROWS;
+  return((
+    Math.sin(nx*Math.PI*2.8+phase)*Math.cos(nz*Math.PI*2.2-phase*.6)*.38+
+    Math.sin(nx*Math.PI*1.4-phase*.5)*Math.sin(nz*Math.PI*3.2+phase*.35)*.28+
+    Math.cos(nx*Math.PI*4.6+nz*Math.PI*2.9+phase*1.9)*.14+
+    Math.sin(nx*Math.PI*.9+nz*Math.PI*.75)*.20
+  )*.5+.5);
+}
+
+function proj(wx,wy,wz){
+  const cosR=Math.cos(rotY),sinR=Math.sin(rotY);
+  const rx=wx*cosR-wz*sinR, rz=wx*sinR+wz*cosR;
+  const tx=rx, ty=wy+200, tz=rz+270;
+  const cosT=Math.cos(TILT),sinT=Math.sin(TILT);
+  const ty2=ty*cosT-tz*sinT, tz2=ty*sinT+tz*cosT;
+  if(tz2<=8) return null;
+  const sc=FOV/tz2;
+  return{sx:TC.width/2+tx*sc, sy:TC.height/2+ty2*sc, depth:tz2, ht:wy};
+}
+
+function drawTerrain(){
+  const W=TC.width, H=TC.height;
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+
+  // BG
+  const bg=TX.createRadialGradient(W*.44,H*.46,0,W*.44,H*.46,W*.75);
+  if(dark){bg.addColorStop(0,'rgba(6,9,28,1)');bg.addColorStop(1,'rgba(2,3,12,1)');}
+  else{bg.addColorStop(0,'rgba(244,248,255,1)');bg.addColorStop(1,'rgba(224,232,252,1)');}
+  TX.fillStyle=bg; TX.fillRect(0,0,W,H);
+
+  // Build verts
+  const cx=COLS/2, cz=ROWS/2;
+  const P=[];
+  for(let r=0;r<ROWS;r++){P[r]=[];for(let c=0;c<COLS;c++){
+    const ht=getH(c,r);
+    const p=proj((c-cx)*SP,-ht*AMP,(r-cz)*SP);
+    P[r][c]=p?{...p,ht}:null;
+  }}
+
+  // Grid lines
+  TX.save(); TX.lineWidth=.55;
+  for(let r=0;r<ROWS-1;r++) for(let c=0;c<COLS-1;c++){
+    const p=P[r][c],pr=P[r][c+1],pd=P[r+1][c];
+    if(p&&pr){const a=dark?.04+p.ht*.11:.06+p.ht*.09; TX.strokeStyle=dark?`rgba(60,110,240,${a})`:`rgba(15,40,130,${a})`;TX.beginPath();TX.moveTo(p.sx,p.sy);TX.lineTo(pr.sx,pr.sy);TX.stroke();}
+    if(p&&pd){const a=dark?.04+p.ht*.11:.06+p.ht*.09; TX.strokeStyle=dark?`rgba(60,110,240,${a})`:`rgba(15,40,130,${a})`;TX.beginPath();TX.moveTo(p.sx,p.sy);TX.lineTo(pd.sx,pd.sy);TX.stroke();}
+  }
+  TX.restore();
+
+  // Collect & sort points
+  const pts=[];
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(P[r][c]) pts.push(P[r][c]);
+  pts.sort((a,b)=>b.depth-a.depth);
+
+  // Draw points
+  for(const p of pts){
+    const ht=p.ht, sz=dark?.7+ht*3.2:.7+ht*2.2;
+    if(dark){
+      if(ht>.82){
+        TX.shadowColor='rgba(160,200,255,.95)'; TX.shadowBlur=10+ht*8;
+        TX.fillStyle=`rgba(${200+Math.floor(ht*55)},${218+Math.floor(ht*37)},255,1)`;
+      } else if(ht>.58){
+        TX.shadowColor='rgba(80,130,255,.55)'; TX.shadowBlur=5;
+        TX.fillStyle=`rgba(${70+Math.floor(ht*150)},${95+Math.floor(ht*120)},${210+Math.floor(ht*45)},${.45+ht*.5})`;
+      } else if(ht>.30){
+        TX.shadowBlur=0;
+        TX.fillStyle=`rgba(25,45,140,${ht*.55})`;
+      } else {
+        TX.shadowBlur=0;
+        TX.fillStyle=`rgba(10,18,80,${ht*.25})`;
+      }
+    } else {
+      TX.shadowBlur=0;
+      const v=Math.floor(ht*200);
+      TX.fillStyle=`rgba(${10+Math.floor(ht*30)},${30+Math.floor(ht*60)},${100+Math.floor(ht*80)},${.25+ht*.72})`;
+    }
+    TX.beginPath(); TX.arc(p.sx,p.sy,sz,0,Math.PI*2); TX.fill();
+  }
+  TX.shadowBlur=0;
+
+  // Radial fog
+  const fr=TX.createRadialGradient(W*.5,H*.5,W*.18,W*.5,H*.5,W*.76);
+  if(dark){fr.addColorStop(0,'rgba(2,3,12,0)');fr.addColorStop(1,'rgba(2,3,12,.78)');}
+  else{fr.addColorStop(0,'rgba(224,232,252,0)');fr.addColorStop(1,'rgba(224,232,252,.72)');}
+  TX.fillStyle=fr; TX.fillRect(0,0,W,H);
+
+  // Top fog
+  const ft=TX.createLinearGradient(0,0,0,H*.30);
+  if(dark){ft.addColorStop(0,'rgba(2,3,12,.96)');ft.addColorStop(1,'rgba(2,3,12,0)');}
+  else{ft.addColorStop(0,'rgba(244,248,255,.96)');ft.addColorStop(1,'rgba(244,248,255,0)');}
+  TX.fillStyle=ft; TX.fillRect(0,0,W,H*.30);
+
+  phase+=.0042; rotY+=.00135;
+  requestAnimationFrame(drawTerrain);
+}
+drawTerrain();
+</script>
 </body>
 </html>
